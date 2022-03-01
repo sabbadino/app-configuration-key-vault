@@ -15,10 +15,9 @@ namespace key_vault_core.Controllers
     public class EnvController : ControllerBase
     {
         private readonly SettingsGroup _appSettings;
-        private readonly IFeatureManager _featureManager;
+        
 
-        // do not use IOptions<SettingsGroup> : it  does not get thre changed values 
-        public EnvController(IOptionsSnapshot<SettingsGroup> appSettings)
+        public EnvController(IOptions<SettingsGroup> appSettings)
         {
             _appSettings = appSettings.Value;
          
