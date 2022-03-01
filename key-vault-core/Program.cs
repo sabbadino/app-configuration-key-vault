@@ -20,22 +20,6 @@ namespace key_vault_core
             CreateHostBuilder(args).Build().Run();
         }
 
-        // KEY VAULT ONLY
-        //public static IHostBuilder CreateHostBuilder(string[] args) =>
-        //    Host.CreateDefaultBuilder(args)
-        //        .ConfigureAppConfiguration((context, config) =>
-        //        {
-        //            var versionPrefix = context.HostingEnvironment.EnvironmentName;
-        //            var settings = config.Build();
-        //            var keyVaultUrl = settings.GetValue<string>("keyVaultUrl");
-        //            var keyVaultEndpoint = new Uri(keyVaultUrl);
-
-        //            config.AddAzureKeyVault(
-        //                keyVaultEndpoint,
-        //                // new DefaultAzureCredential(),   new AzureKeyVaultConfigurationOptions  { ReloadInterval =new TimeSpan(1,0,0)});
-        //                new DefaultAzureCredential(), new PrefixKeyVaultSecretManager(versionPrefix));
-        //        })
-        //        .ConfigureWebHostDefaults(webBuilder => { webBuilder.UseStartup<Startup>(); });
 
         public static IHostBuilder CreateHostBuilder(string[] args) =>
             Host.CreateDefaultBuilder(args)
@@ -43,15 +27,26 @@ namespace key_vault_core
                     webBuilder.ConfigureAppConfiguration((hostingContext, config) =>
                         {
                             var settings = config.Build();
-#if DEBUG
-                            var cnstring = settings["appConfigurationConnectionString"];
-#else 
+
                             var cnstring = settings["appConfigurationEndpoint"];
-#endif
+
                             config.AddAzureAppConfiguration(options =>
                             {
+                                // this is supopsed to  work in all scenarios
+                                //https://docs.microsoft.com/en-us/dotnet/api/azure.identity.defaultazurecredential?view=azure-dotnet
+//                                The following credential types if enabled will be tried, in order:
+//                                  EnvironmentCredential
+//                                  ManagedIdentityCredential
+//                                  SharedTokenCacheCredential
+//                                  VisualStudioCredential
+//                                  VisualStudioCodeCredential
+//                                  AzureCliCredential
+//                                  AzurePowerShellCredential
+//                                  InteractiveBrowserCredential
+                                //options.Connect(new Uri(cnstring), new DefaultAzureCredential())
+
 #if DEBUG
-                                options.Connect(cnstring)
+                                options.Connect(new Uri(cnstring), new VisualStudioCredential())
 #else
                                 options.Connect(new Uri(cnstring), new ManagedIdentityCredential())
 #endif
@@ -63,39 +58,11 @@ namespace key_vault_core
                                         refresh.Register("SettingsGroup:Sentinel", refreshAll: true)
                                                .SetCacheExpiration(TimeSpan.FromSeconds(10));
                                     })
-                                    .UseFeatureFlags(op =>
-                                    {
-                                        op.Select("feature*"); // to filter on fetaure flags
-                                    })
-
-                                    .Select("SettingsGroup:*", LabelFilter.Null)
-                                //.Select(KeyFilter.Any, LabelFilter.Null)
-                                //.Select(KeyFilter.Any, "DEvelopmente);
-                                ;
+                                    .UseFeatureFlags();
 
                             },optional:false);
                         })
                         .UseStartup<Startup>());
     }
-    public class PrefixKeyVaultSecretManager : KeyVaultSecretManager
-    {
-        private readonly string _prefix;
-
-        public PrefixKeyVaultSecretManager(string prefix)
-        {
-            _prefix = $"{prefix}-";
-        }
-
-        public override bool Load(SecretProperties secret)
-        {
-            return secret.Name.StartsWith(_prefix);
-        }
-
-        public override string GetKey(KeyVaultSecret secret)
-        {
-            return secret.Name
-                .Substring(_prefix.Length)
-                .Replace("--", ConfigurationPath.KeyDelimiter);
-        }
-    }
+  
 }
