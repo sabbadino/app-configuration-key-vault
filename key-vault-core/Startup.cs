@@ -35,12 +35,9 @@ namespace key_vault_core
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "key_vault_core", Version = "v1" });
             });
-            // to register IConfigurationRefresherProvider 
-            // reuired for app.UseAzureAppConfiguration();
-            services.AddAzureAppConfiguration();
+          
 
-            services.AddFeatureManagement().AddFeatureFilter<ClaimsFeatureFilter>(); // add our custom filter
-
+          
             services.AddHttpContextAccessor();
         }
 
@@ -56,9 +53,7 @@ namespace key_vault_core
 
             app.UseHttpsRedirection();
 
-            // to enable value refresh (see CreateHostBuilder.AddAzureAppConfiguration.ConfigureRefresh 
-            // on each incoming request, ti will check if cache is expired, and if it's the case, il will query the sentinel key
-            app.UseAzureAppConfiguration();
+           
 
 
             app.UseRouting();
