@@ -27,19 +27,15 @@ namespace key_vault_core
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            var section = Configuration.GetSection("SettingsGroup");
-            services.Configure<SettingsGroup>(section);
+            var section = Configuration.GetSection("AppSettings");
+            services.Configure<AppSettings>(section);
 
             services.AddControllers();
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "key_vault_core", Version = "v1" });
             });
-            // to register IConfigurationRefresherProvider 
-            // reuired for app.UseAzureAppConfiguration();
-            services.AddAzureAppConfiguration();
-
-            services.AddFeatureManagement().AddFeatureFilter<ClaimsFeatureFilter>(); // add our custom filter
+          
 
             services.AddHttpContextAccessor();
         }
@@ -58,7 +54,7 @@ namespace key_vault_core
 
             // to enable value refresh (see CreateHostBuilder.AddAzureAppConfiguration.ConfigureRefresh 
             // on each incoming request, ti will check if cache is expired, and if it's the case, il will query the sentinel key
-            app.UseAzureAppConfiguration();
+          
 
 
             app.UseRouting();
