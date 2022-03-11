@@ -13,6 +13,8 @@ namespace key_vault_core
 
 public class SettingsGroup
     {
+        public string LocalSecret { get; set; }
+        
         public string Sentinel { get; set; }
 
         public List<Item> Items { get; set; } = new List<Item>();
