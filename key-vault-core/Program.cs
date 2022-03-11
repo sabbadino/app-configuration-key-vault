@@ -42,19 +42,16 @@ namespace key_vault_core
                 .ConfigureWebHostDefaults(webBuilder =>
                     webBuilder.ConfigureAppConfiguration((hostingContext, config) =>
                         {
+#if !DEBUG
                             var settings = config.Build();
-#if DEBUG
-                            var cnstring = settings["appConfigurationConnectionString"];
-#else 
-                            var cnstring = settings["appConfigurationEndpoint"];
-#endif
+
                             config.AddAzureAppConfiguration(options =>
                             {
-#if DEBUG
-                                options.Connect(cnstring)
-#else
+
+                              //  options.Connect(cnstring)
+
                                 options.Connect(new Uri(cnstring), new ManagedIdentityCredential())
-#endif
+
                                     .ConfigureKeyVault(kv =>
                                     {
                                         kv.SetCredential(new DefaultAzureCredential());
@@ -69,12 +66,13 @@ namespace key_vault_core
                                         op.Select("feature*"); // to filter on fetaure flags
                                     })
 
-                                    //.Select("SettingsGroup:*", LabelFilter.Null)
+//                                    .Select("SettingsGroup:Key1", LabelFilter.Null)
                                 //.Select(KeyFilter.Any, LabelFilter.Null)
                                 //.Select(KeyFilter.Any, "DEvelopmente);
                                 ;
 
                             },optional:false);
+#endif
                         })
                         .UseStartup<Startup>());
     }
