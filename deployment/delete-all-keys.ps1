@@ -1,0 +1,1 @@
+az appconfig kv delete --name [YourConfigStoreName] --key * --label *

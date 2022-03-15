@@ -15,7 +15,7 @@ namespace key_vault_core.Controllers
     [Route("[controller]")]
     public class EnvController : ControllerBase
     {
-        private readonly IConfiguration _configuration;
+       
 
 
         

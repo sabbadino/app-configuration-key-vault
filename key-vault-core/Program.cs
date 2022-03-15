@@ -33,31 +33,22 @@ namespace key_vault_core
                     config.AddAzureKeyVault(
                         keyVaultEndpoint,
                         new DefaultAzureCredential(),   new AzureKeyVaultConfigurationOptions  { ReloadInterval =new TimeSpan(1,0,0)});
-                        //new DefaultAzureCredential(), new PrefixKeyVaultSecretManager(versionPrefix));
                 })
                 .ConfigureWebHostDefaults(webBuilder => { webBuilder.UseStartup<Startup>(); });
 
+        //https://docs.microsoft.com/en-us/dotnet/api/azure.identity.defaultazurecredential?view=azure-dotnet
+        //DefaultAzureCredential
+        //Provides a default TokenCredential authentication flow for applications that will be deployed to Azure. 
+        //The following credential types if enabled will be tried, in order:
 
+        //EnvironmentCredential
+        //ManagedIdentityCredential
+        //SharedTokenCacheCredential
+        //VisualStudioCredential
+        //VisualStudioCodeCredential
+        //AzureCliCredential
+        //AzurePowerShellCredential
+        //InteractiveBrowserCredential
     }
-    //public class PrefixKeyVaultSecretManager : KeyVaultSecretManager
-    //{
-    //    private readonly string _prefix;
 
-    //    public PrefixKeyVaultSecretManager(string prefix)
-    //    {
-    //        _prefix = $"{prefix}-";
-    //    }
-
-    //    public override bool Load(SecretProperties secret)
-    //    {
-    //        return secret.Name.StartsWith(_prefix);
-    //    }
-
-    //    public override string GetKey(KeyVaultSecret secret)
-    //    {
-    //        return secret.Name
-    //            .Substring(_prefix.Length)
-    //            .Replace("--", ConfigurationPath.KeyDelimiter);
-    //    }
-    //}
 }
