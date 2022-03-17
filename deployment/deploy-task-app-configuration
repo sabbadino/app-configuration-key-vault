@@ -1,0 +1,11 @@
+# to delete all keys first 
+# az appconfig kv delete --name $(appConfigurationName) --key * --label *
+
+
+$NewGuid=New-Guid 
+$GetDate =Get-Date 
+
+az appconfig kv set -n $(appConfigurationName) --key "SettingsGroup:Key1" --value $NewGuid --yes
+
+# sentinel key at the end 
+az appconfig kv set -n $(appConfigurationName) --key "SettingsGroup:Sentinel" --value $GetDate --yes
