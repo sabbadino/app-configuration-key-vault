@@ -1,0 +1,23 @@
+$content = Get-Content  $(System.DefaultWorkingDirectory)/_key-vault-core/drop/akv/akv.json |  ConvertFrom-Json
+$keyVaultName="$(keyVaultName)"
+$content | foreach { 
+   write-host "value-encrypted" $_.value
+   write-host "keyname" $_.name
+   $y= az keyvault key decrypt --name mykey1 --vault-name $keyVaultName  --value $_.value --data-type plaintext --algorithm RSA-OAEP | ConvertFrom-Json
+write-host "value-plain" $y.result 
+
+  $query = "[? name=='" + $_.name + "']"
+  $secretList=$(az keyvault secret list --vault-name  $keyVaultName --query $query) | ConvertFrom-Json
+  $secret=$null;
+  if($secretList.Count -ne 0) {
+		$secret = az keyvault secret show --vault-name $keyVaultName --name $_.name | ConvertFrom-Json
+  }
+   write-host "secret " $secret
+  if($secret -ne $null -and $secret.value -ceq $y.result) {
+ 		write-host value of key $_.name not changed. Skipping 
+ }
+ else {
+    write-host adding/updating key $_.name 
+    az keyvault secret set --vault-name $keyVaultName --name $_.name --value $y.result 
+ }
+}
